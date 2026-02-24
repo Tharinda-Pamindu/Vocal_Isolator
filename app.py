@@ -1,8 +1,10 @@
 import os
+import sys
 import uuid
 import time
 import threading
 import shutil
+import subprocess
 from flask import Flask, request, jsonify, render_template, send_file, abort
 
 app = Flask(__name__)
@@ -44,39 +46,70 @@ def _delete_job_files(file_id):
 
 
 def run_separation(file_id, input_path, model_name, two_stems):
-    """Run Demucs separation in a background thread."""
+    """Run Demucs separation using subprocess (compatible with demucs 4.0.1)."""
     try:
         with jobs_lock:
             jobs[file_id]["status"] = "processing"
             jobs[file_id]["progress"] = 5
 
-        from demucs.api import Separator, save_audio
-        import torch
-
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-
-        separator = Separator(
-            model=model_name,
-            device=device,
-            two_stems=two_stems,  # e.g. "vocals" or None for all stems
-        )
-
-        with jobs_lock:
-            jobs[file_id]["progress"] = 20
-
-        origin, separated = separator.separate_audio_file(input_path)
-
-        with jobs_lock:
-            jobs[file_id]["progress"] = 80
-
         out_dir = os.path.join(OUTPUT_FOLDER, file_id)
         os.makedirs(out_dir, exist_ok=True)
 
+        # Use the same Python executable that is running this Flask app
+        python_exe = sys.executable
+
+        # Build demucs command
+        cmd = [
+            python_exe, "-m", "demucs.separate",
+            "--out", out_dir,
+            "--name", model_name,
+        ]
+        if two_stems:
+            cmd += ["--two-stems", two_stems]
+
+        cmd.append(input_path)
+
+        with jobs_lock:
+            jobs[file_id]["progress"] = 15
+
+        # Run separation as subprocess, capture output
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                result.stderr.strip() or f"Demucs exited with code {result.returncode}"
+            )
+
+        with jobs_lock:
+            jobs[file_id]["progress"] = 90
+
+        # Demucs writes to: out_dir/<model_name>/<input_stem>/*.wav
+        # Find the actual output subfolder
         stems_info = []
-        for stem_name, audio_tensor in separated.items():
-            out_path = os.path.join(out_dir, f"{stem_name}.wav")
-            save_audio(audio_tensor, out_path, samplerate=separator.samplerate)
-            stems_info.append(stem_name)
+        model_out = os.path.join(out_dir, model_name)
+
+        if os.path.isdir(model_out):
+            # Find the track folder (named after the input file without extension)
+            track_folders = [
+                d for d in os.listdir(model_out)
+                if os.path.isdir(os.path.join(model_out, d))
+            ]
+            if track_folders:
+                track_dir = os.path.join(model_out, track_folders[0])
+                for wav_file in os.listdir(track_dir):
+                    if wav_file.endswith(".wav"):
+                        stem_name = wav_file[:-4]  # strip .wav
+                        src = os.path.join(track_dir, wav_file)
+                        dst = os.path.join(out_dir, f"{stem_name}.wav")
+                        shutil.copy2(src, dst)
+                        stems_info.append(stem_name)
+
+        if not stems_info:
+            raise RuntimeError("Separation completed but no output WAV files were found.")
 
         with jobs_lock:
             jobs[file_id]["status"] = "done"
@@ -88,7 +121,6 @@ def run_separation(file_id, input_path, model_name, two_stems):
             jobs[file_id]["status"] = "error"
             jobs[file_id]["error"] = str(e)
     finally:
-        # Small delay then clean upload file
         try:
             if os.path.isfile(input_path):
                 os.remove(input_path)

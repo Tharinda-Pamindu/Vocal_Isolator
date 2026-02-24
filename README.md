@@ -28,7 +28,7 @@ A sleek, browser-based audio stem separation tool powered by **Meta's Demucs v4*
 ### 1. Clone & set up
 
 ```bash
-git clone [https://github.com/Tharinda-Pamindu/demucs-vocal-isolation.git](https://github.com/Tharinda-Pamindu/Vocal_Isolator.git)
+git clone https://github.com/Tharinda-Pamindu/demucs-vocal-isolation.git
 cd demucs-vocal-isolation
 
 python -m venv .venv

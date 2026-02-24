@@ -61,7 +61,7 @@ Open **http://localhost:5000** in your browser.
 ## 📂 Project Structure
 
 ```
-demucs-vocal-isolation/
+Vocal_Isolator/
 ├── app.py                  # Flask backend + separation logic
 ├── requirements.txt
 ├── templates/

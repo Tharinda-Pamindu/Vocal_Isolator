@@ -31,7 +31,7 @@ Open an issue with the label `enhancement` and describe:
 
 ```bash
 git clone https://github.com/Tharinda-Pamindu/Vocal_Isolator.git
-cd demucs-vocal-isolation
+cd Vocal_Isolator
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 # source .venv/bin/activate     # Linux / macOS

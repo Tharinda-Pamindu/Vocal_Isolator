@@ -2,7 +2,7 @@
 
 A sleek, browser-based audio stem separation tool powered by **Meta's Demucs v4** (`htdemucs`). Upload any audio file, isolate vocals from instruments, and download each stem — all from a beautiful dark glassmorphism UI.
 
-![App Screenshot](https://github.com/Tharinda-Pamindu/Vocal_Isolator/blob/update-v1/static/assest/img-ss.png)
+![App Screenshot](https://github.com/Tharinda-Pamindu/Vocal_Isolator/blob/main/static/assest/img-ss.png)
 
 ---
 

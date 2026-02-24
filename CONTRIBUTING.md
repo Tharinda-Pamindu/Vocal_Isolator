@@ -30,7 +30,7 @@ Open an issue with the label `enhancement` and describe:
 ### Setup
 
 ```bash
-git clone https://github.com/Tharinda-Pamindu/demucs-vocal-isolation.git
+git clone https://github.com/Tharinda-Pamindu/Vocal_Isolator.git
 cd demucs-vocal-isolation
 python -m venv .venv
 .venv\Scripts\activate          # Windows

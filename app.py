@@ -205,6 +205,6 @@ def download(file_id, stem):
 
 
 if __name__ == "__main__":
-    print("🎵 Demucs Vocal Isolation App")
+    print("Demucs Vocal Isolation App")
     print("   Server: http://127.0.0.1:5000")
     app.run(debug=True, host="0.0.0.0", port=5000, threaded=True)

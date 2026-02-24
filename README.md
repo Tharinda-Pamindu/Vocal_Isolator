@@ -125,9 +125,15 @@ audioread
 
 ---
 
+## 🤝 Contributing
+
+Pull requests are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on reporting bugs, suggesting features, and submitting PRs.
+
+---
+
 ## 📄 License
 
-This project is licensed under the **MIT License**.  
+This project is licensed under the **[MIT License](LICENSE)**.  
 Demucs itself is licensed under the [MIT License](https://github.com/facebookresearch/demucs/blob/main/LICENSE) by Meta Platforms.
 
 ---
